@@ -1,0 +1,1 @@
+{"version":3,"file":"DebugFetch.d.ts","sourceRoot":"","sources":["../../src/tools/DebugFetch.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,MAAM,SAAS,CAAC;AAClC,OAAO,EAAE,CAAC,EAAE,MAAM,KAAK,CAAC;AAKxB,qBAAa,cAAe,YAAW,OAAO;IAC1C,IAAI,SAAiB;IACrB,WAAW,SAAkE;IAE7E,WAAW,iDAAgB;IAErB,OAAO,CAAC,MAAM,EAAE,MAAM,CAAC,MAAM,EAAE,KAAK,CAAC;;;;;;;;;;;;;;;;;;;;;;;CA0C9C"}

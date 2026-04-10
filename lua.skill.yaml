@@ -1,0 +1,21 @@
+agent:
+  agentId: baseAgent_agent_1775818206174_333z8yqh1
+  orgId: e2fa42a6-4fd8-4963-9c46-aaa60ca61d91
+skills:
+  - name: biashara-core
+    skillId: 86046368-9c97-4fae-a63e-5ac109a5ffc1
+    version: 1.0.2
+webhooks:
+  - name: mpesa-callback
+    version: 1.0.1
+    webhookId: 79bc2aa3-8183-4fb1-b175-8cddd8cc77ef
+jobs:
+  - jobId: d9f0e4cb-39f2-4f95-9b35-7a9a27f0c60b
+    name: morning-briefing
+    version: 1.0.1
+  - jobId: 2b679265-0e09-4d45-a956-309abe6027b1
+    name: credit-threshold-check
+    version: 1.0.1
+preprocessors: []
+postprocessors: []
+mcpServers: []

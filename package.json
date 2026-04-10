@@ -1,0 +1,23 @@
+{
+    "name": "biashara-agent",
+    "version": "1.0.0",
+    "description": "Biashara Agent — AI credit-readiness agent for Kenyan microenterprises",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "tsc",
+        "dev": "ts-node src/index.ts",
+        "test": "lua test",
+        "deploy": "lua push && lua deploy"
+    },
+    "dependencies": {
+        "lua-cli": "latest",
+        "pdfkit": "^0.18.0",
+        "zod": "^3.22.4"
+    },
+    "devDependencies": {
+        "@types/node": "^20.0.0",
+        "@types/pdfkit": "^0.17.5",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.3.3"
+    }
+}
