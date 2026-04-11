@@ -1,1 +1,5 @@
 dist-v2/
+
+# Claude Code context files
+CLAUDE_CODE_*.md
+CLAUDE_DESKTOP_*.md

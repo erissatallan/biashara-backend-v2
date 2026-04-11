@@ -10,14 +10,14 @@ Biashara Agent transforms M-Pesa transaction data into actionable credit readine
 
 ## Features
 
-### 🤖 Autonomous Agent Capabilities
+### Autonomous Agent Capabilities
 
 - **Morning Briefings** — Daily WhatsApp summaries at 7 AM EAT with revenue analysis and credit updates
 - **Credit Threshold Monitoring** — Automatic alerts when score crosses 45, 60, or 75 points
 - **Loan Research** — Weekly scans of KCB, Equity, M-Shwari, and SACCO lending policies
 - **Low Sales Recovery** — Sends discount campaigns to customers when revenue drops 20%+ below average
 
-### 📊 Dashboard Features
+### Dashboard Features
 
 - Real-time credit readiness score visualization
 - 90-day revenue analytics with trend charts
@@ -25,7 +25,7 @@ Biashara Agent transforms M-Pesa transaction data into actionable credit readine
 - Customer campaign management (WhatsApp discount offers)
 - Automated job monitoring and configuration
 
-### 📄 Loan Proposal Generation
+### Loan Proposal Generation
 
 The agent generates professional, lender-ready proposals including:
 - Executive summary with 90-day performance analysis
@@ -35,7 +35,7 @@ The agent generates professional, lender-ready proposals including:
 - Lender-readiness checklist with progress bars
 - Strategic recommendations for improvement
 
-### 💬 WhatsApp Integration
+### WhatsApp Integration
 
 Business owners interact naturally via WhatsApp:
 - "Show my credit profile" → Instant score with reasoning
@@ -46,20 +46,69 @@ Business owners interact naturally via WhatsApp:
 ## Architecture
 
 ```
-WhatsApp (Owner) ←→ Lua AI Agent
-                        ↓
-                    Biashara Skill
-                        ↓
-                Backend API (Node.js + SQLite)
-                        ↓
-            M-Pesa Transaction History (90 days)
+┌─────────────────────────────────────────────────────────────────────┐
+│                          WhatsApp Business                          │
+│                    (Business Owner + Customers)                     │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────────────┐
+│                         Lua AI Agent                                │
+│                  (Agent ID: baseAgent_agent_...)                    │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌─────────────────┐  ┌──────────────────┐  ┌──────────────────┐  │
+│  │   Biashara      │  │    M-Pesa        │  │   Cron Jobs      │  │
+│  │   Skill         │  │    Webhook       │  │   (Scheduled)    │  │
+│  └─────────────────┘  └──────────────────┘  └──────────────────┘  │
+│                                                                     │
+│  Tools:                 Endpoint:              Jobs:                │
+│  • get_transaction_    • mpesa-callback        • morning-briefing  │
+│    summary                                       (daily 7am)       │
+│  • get_credit_                                 • credit-threshold  │
+│    profile                                       (every 6h)        │
+│  • generate_                                   • loan-research     │
+│    financial_summary                             (weekly Mon 6am) │
+│  • simulate_                                   • low-sales-        │
+│    transaction                                   recovery          │
+│  • analyze_anomaly                               (every 4h)        │
+│  • refresh_loan_                                                   │
+│    research                                                        │
+│  • send_customer_                                                  │
+│    campaign                                                        │
+│                                                                     │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                             │ HTTPS + API Secret / Token
+                             │
+┌────────────────────────────▼────────────────────────────────────────┐
+│                    Backend API (Node.js + Express)                  │
+│                  https://biashara.chequemate.space                  │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  Endpoints:                    Database (SQLite):                   │
+│  • /api/credit/profile         • transactions (2766 records)       │
+│  • /api/transactions/summary   • credit_snapshots                  │
+│  • /api/proposals              • proposals (PDF metadata)          │
+│  • /api/campaigns              • campaigns                         │
+│  • /api/documents              • settings                          │
+│  • /api/research/refresh       • research_updates                  │
+│  • /api/settings                                                   │
+│                                                                     │
+│  Dashboard: /public/dashboard.html                                 │
+│  • Real-time metrics visualization                                 │
+│  • Credit score charts (Chart.js)                                  │
+│  • PDF proposal generator (jsPDF)                                  │
+│  • Campaign management UI                                          │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 **Tech Stack:**
-- **Agent Framework:** Lua AI Platform
-- **Backend:** Node.js + Express + SQLite
-- **Frontend:** Tailwind CSS + Chart.js
-- **Deployment:** Ubuntu server + Apache + Cloudflare
+- **Agent Framework:** Lua AI Platform (autonomous orchestration, AI.generate)
+- **Backend:** Node.js 24 + Express + SQLite 3
+- **Frontend:** Tailwind CSS + Chart.js + jsPDF
+- **Deployment:** Ubuntu 24.04 + Apache 2.4 + Systemd + Cloudflare DNS
+- **Integrations:** WhatsApp Business API (via Lua), M-Pesa Daraja API
 
 ## Quick Start
 
