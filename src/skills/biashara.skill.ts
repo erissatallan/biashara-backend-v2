@@ -5,6 +5,7 @@ import { GenerateFinancialSummaryTool } from '../tools/GenerateFinancialSummary'
 import { SimulateTransactionTool } from '../tools/SimulateTransaction';
 import { AnalyzeAnomalyTool } from '../tools/AnalyzeAnomaly';
 import { RefreshLoanResearchTool } from '../tools/RefreshLoanResearch';
+import { SendCustomerCampaignTool } from '../tools/SendCustomerCampaign';
 
 export const biasharaSkill = new LuaSkill({
     name: 'biashara-core',
@@ -36,5 +37,6 @@ messages concise — ideally under 6 lines.`,
         new SimulateTransactionTool(),
         new AnalyzeAnomalyTool(),
         new RefreshLoanResearchTool(),
+        new SendCustomerCampaignTool(),
     ],
 });

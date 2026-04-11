@@ -8,6 +8,7 @@ const GenerateFinancialSummary_1 = require("../tools/GenerateFinancialSummary");
 const SimulateTransaction_1 = require("../tools/SimulateTransaction");
 const AnalyzeAnomaly_1 = require("../tools/AnalyzeAnomaly");
 const RefreshLoanResearch_1 = require("../tools/RefreshLoanResearch");
+const SendCustomerCampaign_1 = require("../tools/SendCustomerCampaign");
 exports.biasharaSkill = new lua_cli_1.LuaSkill({
     name: 'biashara-core',
     description: 'Core capabilities for the Biashara credit-readiness agent',
@@ -38,6 +39,7 @@ messages concise — ideally under 6 lines.`,
         new SimulateTransaction_1.SimulateTransactionTool(),
         new AnalyzeAnomaly_1.AnalyzeAnomalyTool(),
         new RefreshLoanResearch_1.RefreshLoanResearchTool(),
+        new SendCustomerCampaign_1.SendCustomerCampaignTool(),
     ],
 });
 //# sourceMappingURL=biashara.skill.js.map

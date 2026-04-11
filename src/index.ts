@@ -3,6 +3,8 @@ import { biasharaSkill } from './skills/biashara.skill';
 import { mpesaWebhook } from './webhooks/mpesa';
 import { morningBriefingJob } from './jobs/morningBriefing';
 import { creditCheckJob } from './jobs/creditCheck';
+import { loanResearchRefreshJob } from './jobs/loanResearchRefresh';
+import { lowSalesRecoveryJob } from './jobs/lowSalesRecovery';
 
 export const agent = new LuaAgent({
     name: 'biashara-agent',
@@ -56,5 +58,7 @@ your purpose and offer to show them their current credit readiness score.`,
     jobs: [
         morningBriefingJob,
         creditCheckJob,
+        loanResearchRefreshJob,
+        lowSalesRecoveryJob,
     ],
 });
