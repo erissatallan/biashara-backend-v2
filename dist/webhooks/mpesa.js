@@ -6,9 +6,6 @@ const lua_cli_1 = require("lua-cli");
 const OWNER_USER_ID = '254759469851';
 const BACKEND = 'https://untransmitted-rowena-unpreferably.ngrok-free.dev';
 const SECRET = 'dev-secret';
-/**
- * M-Pesa webhook — receives Daraja callbacks (and our simulated callbacks).
- */
 exports.mpesaWebhook = new lua_cli_1.LuaWebhook({
     name: 'mpesa-callback',
     description: 'Receives M-Pesa Daraja payment callbacks and proactively reasons about them',
@@ -18,7 +15,6 @@ exports.mpesaWebhook = new lua_cli_1.LuaWebhook({
             const settingsRes = await fetch(`${BACKEND}/api/settings`, { headers: { 'x-api-secret': SECRET } });
             const settings = settingsRes.ok ? await settingsRes.json() : {};
             const { amount, receipt, phone, Body } = event.body;
-            // Normalize Daraja vs Simulation payload
             const TransAmount = amount || Body?.stkCallback?.CallbackMetadata?.Item?.find((i) => i.Name === 'Amount')?.Value;
             const TransID = receipt || Body?.stkCallback?.CallbackMetadata?.Item?.find((i) => i.Name === 'MpesaReceiptNumber')?.Value;
             const CustomerPhone = phone || Body?.stkCallback?.CallbackMetadata?.Item?.find((i) => i.Name === 'PhoneNumber')?.Value;
@@ -83,7 +79,6 @@ exports.mpesaWebhook = new lua_cli_1.LuaWebhook({
                     }
                 }
             }
-            // 1. Persist the transaction in our backend for real Daraja callbacks.
             if (event.body?.simulated !== true) {
                 try {
                     await fetch(`${BACKEND}/api/transactions/simulate`, {
@@ -102,7 +97,6 @@ exports.mpesaWebhook = new lua_cli_1.LuaWebhook({
                     console.error('mpesa webhook: failed to persist transaction', e);
                 }
             }
-            // 2. Proactive Owner Insight
             const [anomalyRes, profileRes] = await Promise.all([
                 fetch(`${BACKEND}/api/transactions/anomaly`, {
                     method: 'POST',
@@ -120,7 +114,6 @@ exports.mpesaWebhook = new lua_cli_1.LuaWebhook({
                 const messageText = await lua_cli_1.AI.generate(systemPrompt, userPrompt);
                 await owner.send([{ type: 'text', text: messageText }]);
             }
-            // 3. PROMO FEATURE: Send thank you / discount to CLIENT if enabled
             const promoEnabled = settings.promo_messages_enabled === true;
             if (promoEnabled && CustomerPhone && CustomerPhone !== OWNER_USER_ID) {
                 try {

@@ -5,9 +5,6 @@ const OWNER_USER_ID = '254759469851';
 const BACKEND = 'https://untransmitted-rowena-unpreferably.ngrok-free.dev';
 const SECRET = 'dev-secret';
 
-/**
- * M-Pesa webhook — receives Daraja callbacks (and our simulated callbacks).
- */
 export const mpesaWebhook = new LuaWebhook({
     name: 'mpesa-callback',
     description: 'Receives M-Pesa Daraja payment callbacks and proactively reasons about them',
@@ -19,8 +16,7 @@ export const mpesaWebhook = new LuaWebhook({
             const settings: any = settingsRes.ok ? await settingsRes.json() : {};
 
             const { amount, receipt, phone, Body } = event.body as any;
-            
-            // Normalize Daraja vs Simulation payload
+
             const TransAmount = amount || Body?.stkCallback?.CallbackMetadata?.Item?.find((i: any) => i.Name === 'Amount')?.Value;
             const TransID = receipt || Body?.stkCallback?.CallbackMetadata?.Item?.find((i: any) => i.Name === 'MpesaReceiptNumber')?.Value;
             const CustomerPhone = phone || Body?.stkCallback?.CallbackMetadata?.Item?.find((i: any) => i.Name === 'PhoneNumber')?.Value;
@@ -94,7 +90,6 @@ export const mpesaWebhook = new LuaWebhook({
                 }
             }
 
-            // 1. Persist the transaction in our backend for real Daraja callbacks.
             if (event.body?.simulated !== true) {
                 try {
                     await fetch(`${BACKEND}/api/transactions/simulate`, {
@@ -113,7 +108,6 @@ export const mpesaWebhook = new LuaWebhook({
                 }
             }
 
-            // 2. Proactive Owner Insight
             const [anomalyRes, profileRes] = await Promise.all([
                 fetch(`${BACKEND}/api/transactions/anomaly`, {
                     method: 'POST',
@@ -134,7 +128,6 @@ export const mpesaWebhook = new LuaWebhook({
                 await owner.send([{ type: 'text', text: messageText }]);
             }
 
-            // 3. PROMO FEATURE: Send thank you / discount to CLIENT if enabled
             const promoEnabled = settings.promo_messages_enabled === true;
             if (promoEnabled && CustomerPhone && CustomerPhone !== OWNER_USER_ID) {
                 try {

@@ -5,7 +5,6 @@ const OWNER_USER_ID = process.env.OWNER_USER_ID || '';
 const BACKEND = process.env.BACKEND_API_URL || 'http://localhost:4000';
 const SECRET = process.env.BACKEND_API_SECRET || 'dev-secret';
 
-// Milestones the agent cares about (lender-readiness thresholds)
 const MILESTONES = [45, 60, 75];
 
 const generatePdfBase64 = (text: string): Promise<string> => {
@@ -20,7 +19,6 @@ const generatePdfBase64 = (text: string): Promise<string> => {
         doc.fontSize(14).font('Helvetica-Bold').text('Zawadi General Store', { align: 'center' });
         doc.moveDown(2);
 
-        // Very basic markdown parsing for bolding
         const lines = text.split('\n');
         for (const line of lines) {
             if (line.trim().startsWith('*') && line.trim().endsWith('*') && !line.includes(' ')) {
@@ -38,15 +36,8 @@ const generatePdfBase64 = (text: string): Promise<string> => {
     });
 };
 
-/**
- * Credit threshold check — runs every N hours (configurable via CREDIT_CHECK_INTERVAL_HOURS).
- *
- * The goal is silent monitoring: 99% of the time this job runs and says
- * nothing. When the credit readiness score crosses a milestone (45, 60,
- * 75) for the first time, the agent proactively messages the owner with
- * an exciting, contextual note. We track the previously-seen milestone
- * in job metadata so we only celebrate each threshold once.
- */
+// Monitors credit score milestones (45, 60, 75) and notifies owner on threshold crossings.
+// Auto-generates loan proposals at 45+ score.
 export const creditCheckJob = new LuaJob({
     name: 'credit-threshold-check',
     description: 'Checks every 6 hours for credit score milestone crossings and notifies the owner when one is reached',
@@ -79,17 +70,14 @@ export const creditCheckJob = new LuaJob({
             const profile: any = await res.json();
             const score: number = profile?.score ?? 0;
 
-            // Find the highest milestone we've now crossed
             const crossed = MILESTONES.filter(m => score >= m);
             const currentMilestone = crossed.length ? crossed[crossed.length - 1] : 0;
             const previousMilestone: number = job.metadata?.lastMilestone ?? 0;
 
             if (currentMilestone <= previousMilestone) {
-                // No new milestone — stay silent. This is the default path.
                 return { sent: false, reason: 'no milestone crossed', score };
             }
 
-            // We just crossed a milestone — compose a celebration message
             let systemPrompt =
                 `You are Biashara, an AI business agent for the owner of Zawadi General Store. ` +
                 `The owner's credit readiness score just crossed a meaningful threshold. ` +
@@ -122,7 +110,6 @@ export const creditCheckJob = new LuaJob({
 
             await owner.send([{ type: 'text', text }]);
 
-            // If milestone >= 45, draft and send the loan proposal
             if (currentMilestone >= 45) {
                 try {
                     const summaryRes = await fetch(`${BACKEND}/api/transactions/summary?days=90`, {
@@ -175,7 +162,6 @@ export const creditCheckJob = new LuaJob({
                 }
             }
 
-            // Remember this milestone so we don't celebrate it again
             try {
                 await job.updateMetadata({
                     ...(job.metadata ?? {}),

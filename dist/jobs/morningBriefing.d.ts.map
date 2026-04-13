@@ -1,1 +1,1 @@
-{"version":3,"file":"morningBriefing.d.ts","sourceRoot":"","sources":["../../src/jobs/morningBriefing.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAY,MAAM,SAAS,CAAC;AAM3C;;;;;;;;GAQG;AACH,eAAO,MAAM,kBAAkB,QAwE7B,CAAC"}
+{"version":3,"file":"morningBriefing.d.ts","sourceRoot":"","sources":["../../src/jobs/morningBriefing.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAY,MAAM,SAAS,CAAC;AAO3C,eAAO,MAAM,kBAAkB,QAwE7B,CAAC"}

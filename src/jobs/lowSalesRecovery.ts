@@ -4,37 +4,21 @@ const OWNER_USER_ID = process.env.OWNER_USER_ID || '';
 const BACKEND = process.env.BACKEND_API_URL || 'http://localhost:4000';
 const SECRET = process.env.BACKEND_API_SECRET || 'dev-secret';
 
-// TODO: Replace with actual customer phone numbers (format: 254XXXXXXXXX)
-// Later this can be moved to a database table
 const CUSTOMER_PHONE_NUMBERS = [
     '254770054884',
     '254741470643',
     '254700416929',
 ];
 
-// Threshold for triggering recovery campaign (% below average)
-const REVENUE_DROP_THRESHOLD = 20; // Send if revenue is 20%+ below average
+const REVENUE_DROP_THRESHOLD = 20;
 
-/**
- * Low Sales Recovery Job — runs every 4 hours during business hours.
- *
- * This job monitors real-time revenue performance and automatically sends
- * discount offers to customers via WhatsApp when sales drop significantly
- * below historical averages. It's proactive revenue protection.
- *
- * The job:
- * 1. Fetches recent transaction data and compares to baselines
- * 2. If revenue is significantly down, generates a compelling discount offer
- * 3. Sends personalized WhatsApp messages to the customer list
- * 4. Notifies the owner that a recovery campaign was triggered
- * 5. Tracks when campaigns were sent to avoid spamming
- */
+// Monitors revenue and sends WhatsApp discount campaigns when sales drop 20%+ below average.
+// Runs every 4 hours during business hours, max 2 campaigns per day.
 export const lowSalesRecoveryJob = new LuaJob({
     name: 'low-sales-recovery',
     description: 'Automatically sends discount offers to customers via WhatsApp when revenue drops significantly below average',
     schedule: {
         type: 'cron',
-        // Every 4 hours from 8am to 8pm (business hours)
         expression: '0 8,12,16,20 * * *',
         timezone: 'Africa/Nairobi',
     },
@@ -48,7 +32,6 @@ export const lowSalesRecoveryJob = new LuaJob({
         const userId = job.metadata?.userId || OWNER_USER_ID;
         if (!userId) return { sent: false, reason: 'no userId' };
 
-        // Don't send more than 2 campaigns per day to avoid spam
         const today = new Date().toISOString().split('T')[0];
         const lastCampaignDate = job.metadata?.lastCampaignSent?.split('T')[0];
         const campaignsToday = today === lastCampaignDate ? (job.metadata?.campaignsSentToday || 0) : 0;
@@ -58,7 +41,6 @@ export const lowSalesRecoveryJob = new LuaJob({
         }
 
         try {
-            // Fetch current day's performance and weekly baseline
             const [todayRes, weekRes] = await Promise.all([
                 fetch(`${BACKEND}/api/transactions/summary?days=1`, {
                     headers: { 'x-api-secret': SECRET },
@@ -75,14 +57,12 @@ export const lowSalesRecoveryJob = new LuaJob({
                 return { sent: false, reason: 'failed to fetch transaction data' };
             }
 
-            // Calculate performance metrics
             const todayRevenue = todaySummary.totalRevenue || 0;
             const weeklyAverage = weekSummary.avgDailyRevenue || 0;
             const dropPercentage = weeklyAverage > 0
                 ? ((weeklyAverage - todayRevenue) / weeklyAverage) * 100
                 : 0;
 
-            // Check if revenue is significantly below average
             if (dropPercentage < REVENUE_DROP_THRESHOLD) {
                 return {
                     sent: false,
@@ -93,10 +73,7 @@ export const lowSalesRecoveryJob = new LuaJob({
                 };
             }
 
-            // Revenue is down — trigger recovery campaign!
-            console.log(`🚨 Low sales detected: ${Math.round(dropPercentage)}% below average. Triggering customer campaign...`);
-
-            // Generate personalized discount offer using AI
+            console.log(`Low sales detected: ${Math.round(dropPercentage)}% below average. Triggering campaign...`);
             const systemPrompt =
                 `You are a marketing assistant for Zawadi General Store in Westlands, Nairobi. ` +
                 `Sales are down today, so you need to send a warm, compelling WhatsApp message to customers ` +
@@ -123,7 +100,6 @@ export const lowSalesRecoveryJob = new LuaJob({
                     `Zawadi General Store, Westlands`;
             }
 
-            // Send to all customers
             let successCount = 0;
             let failCount = 0;
 
@@ -133,7 +109,6 @@ export const lowSalesRecoveryJob = new LuaJob({
                     if (customer) {
                         await customer.send([{ type: 'text', text: discountMessage }]);
                         successCount++;
-                        // Small delay to avoid rate limiting
                         await new Promise(resolve => setTimeout(resolve, 500));
                     } else {
                         console.warn(`Customer ${phoneNumber} not found`);
@@ -145,7 +120,6 @@ export const lowSalesRecoveryJob = new LuaJob({
                 }
             }
 
-            // Notify owner that campaign was sent
             const owner = await User.get(userId);
             if (owner) {
                 const ownerMessage =
@@ -157,7 +131,6 @@ export const lowSalesRecoveryJob = new LuaJob({
                 await owner.send([{ type: 'text', text: ownerMessage }]);
             }
 
-            // Update metadata to track campaign
             await job.updateMetadata({
                 ...(job.metadata ?? {}),
                 lastCampaignSent: new Date().toISOString(),

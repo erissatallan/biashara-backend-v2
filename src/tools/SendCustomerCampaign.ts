@@ -27,14 +27,12 @@ all registered customer phone numbers. It prevents spam by limiting campaigns to
 
     async execute(input: { discountPercent: number; reason?: string }) {
         try {
-            // Fetch current revenue data for context
             const weekRes = await fetch(`${BACKEND}/api/transactions/summary?days=7`, {
                 headers: { 'x-api-secret': SECRET },
             });
             const weekSummary: any = weekRes.ok ? await weekRes.json() : null;
             const weeklyAverage = weekSummary?.avgDailyRevenue || 4500;
 
-            // Generate discount message using AI
             const systemPrompt =
                 `You are a marketing assistant for Zawadi General Store in Westlands, Nairobi. ` +
                 `You need to send a warm, compelling WhatsApp message to customers ` +
@@ -60,7 +58,6 @@ all registered customer phone numbers. It prevents spam by limiting campaigns to
                     `Zawadi General Store, Westlands`;
             }
 
-            // Send campaign request to backend
             const res = await fetch(`${BACKEND}/api/campaigns/send`, {
                 method: 'POST',
                 headers: {
