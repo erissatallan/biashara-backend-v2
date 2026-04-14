@@ -4,10 +4,6 @@ exports.agent = void 0;
 const lua_cli_1 = require("lua-cli");
 const biashara_skill_1 = require("./skills/biashara.skill");
 const mpesa_1 = require("./webhooks/mpesa");
-const morningBriefing_1 = require("./jobs/morningBriefing");
-const creditCheck_1 = require("./jobs/creditCheck");
-const loanResearchRefresh_1 = require("./jobs/loanResearchRefresh");
-const lowSalesRecovery_1 = require("./jobs/lowSalesRecovery");
 exports.agent = new lua_cli_1.LuaAgent({
     name: 'biashara-agent',
     // -------------------------------------------------------------------
@@ -54,10 +50,10 @@ your purpose and offer to show them their current credit readiness score.`,
     skills: [biashara_skill_1.biasharaSkill],
     webhooks: [mpesa_1.mpesaWebhook],
     jobs: [
-        morningBriefing_1.morningBriefingJob,
-        creditCheck_1.creditCheckJob,
-        loanResearchRefresh_1.loanResearchRefreshJob,
-        lowSalesRecovery_1.lowSalesRecoveryJob,
+    // morningBriefingJob,
+    // creditCheckJob,
+    // loanResearchRefreshJob,
+    // lowSalesRecoveryJob,
     ],
 });
 //# sourceMappingURL=index.js.map

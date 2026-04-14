@@ -56,9 +56,9 @@ your purpose and offer to show them their current credit readiness score.`,
     webhooks: [mpesaWebhook],
 
     jobs: [
-        morningBriefingJob,
-        creditCheckJob,
-        loanResearchRefreshJob,
-        lowSalesRecoveryJob,
+        // morningBriefingJob,
+        // creditCheckJob,
+        // loanResearchRefreshJob,
+        // lowSalesRecoveryJob,
     ],
 });
